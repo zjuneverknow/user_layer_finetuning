@@ -6,8 +6,8 @@ from huggingface_hub import snapshot_download
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model_name", type=str, default="Qwen/Qwen2.5-1.5B-Instruct")
-    parser.add_argument("--output_dir", type=str, default="models/Qwen2.5-1.5B-Instruct")
+    parser.add_argument("--model_name", type=str, default="Qwen/Qwen3.5-0.8B")
+    parser.add_argument("--output_dir", type=str, default="models/Qwen3.5-0.8B")
     parser.add_argument("--revision", type=str, default=None)
     return parser.parse_args()
 
@@ -21,8 +21,6 @@ def main() -> None:
         repo_id=args.model_name,
         revision=args.revision,
         local_dir=str(output_dir),
-        local_dir_use_symlinks=False,
-        resume_download=True,
     )
 
     print(f"Downloaded model to: {local_path}")

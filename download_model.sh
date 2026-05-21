@@ -2,5 +2,5 @@
 set -euo pipefail
 
 python download_model.py \
-  --model_name Qwen/Qwen2.5-1.5B-Instruct \
-  --output_dir models/Qwen2.5-1.5B-Instruct
+  --model_name Qwen/Qwen3.5-0.8B \
+  --output_dir models/Qwen3.5-0.8B
