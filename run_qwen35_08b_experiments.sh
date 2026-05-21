@@ -2,6 +2,10 @@
 set -euo pipefail
 
 MODEL_PATH="${MODEL_PATH:-models/Qwen3.5-0.8B}"
+TRAIN_BATCH_SIZE="${TRAIN_BATCH_SIZE:-16}"
+GRAD_ACCUM_STEPS="${GRAD_ACCUM_STEPS:-1}"
+EVAL_STEPS="${EVAL_STEPS:-500}"
+SAVE_STEPS="${SAVE_STEPS:-500}"
 
 mkdir -p outputs results
 
@@ -15,9 +19,12 @@ python train_sft.py \
   --num_train_epochs 3 \
   --learning_rate 1e-4 \
   --max_seq_length 1024 \
-  --per_device_train_batch_size 1 \
-  --gradient_accumulation_steps 8 \
-  --bf16
+  --per_device_train_batch_size "$TRAIN_BATCH_SIZE" \
+  --gradient_accumulation_steps "$GRAD_ACCUM_STEPS" \
+  --eval_steps "$EVAL_STEPS" \
+  --save_steps "$SAVE_STEPS" \
+  --bf16 \
+  --resume_from_checkpoint auto
 
 python train_sft.py \
   --model_name "$MODEL_PATH" \
@@ -29,9 +36,12 @@ python train_sft.py \
   --num_train_epochs 3 \
   --learning_rate 1e-4 \
   --max_seq_length 1024 \
-  --per_device_train_batch_size 1 \
-  --gradient_accumulation_steps 8 \
-  --bf16
+  --per_device_train_batch_size "$TRAIN_BATCH_SIZE" \
+  --gradient_accumulation_steps "$GRAD_ACCUM_STEPS" \
+  --eval_steps "$EVAL_STEPS" \
+  --save_steps "$SAVE_STEPS" \
+  --bf16 \
+  --resume_from_checkpoint auto
 
 python train_sft.py \
   --model_name "$MODEL_PATH" \
@@ -43,9 +53,12 @@ python train_sft.py \
   --num_train_epochs 3 \
   --learning_rate 1e-4 \
   --max_seq_length 1024 \
-  --per_device_train_batch_size 1 \
-  --gradient_accumulation_steps 8 \
-  --bf16
+  --per_device_train_batch_size "$TRAIN_BATCH_SIZE" \
+  --gradient_accumulation_steps "$GRAD_ACCUM_STEPS" \
+  --eval_steps "$EVAL_STEPS" \
+  --save_steps "$SAVE_STEPS" \
+  --bf16 \
+  --resume_from_checkpoint auto
 
 python train_sft.py \
   --model_name "$MODEL_PATH" \
@@ -57,9 +70,12 @@ python train_sft.py \
   --num_train_epochs 3 \
   --learning_rate 1e-4 \
   --max_seq_length 1024 \
-  --per_device_train_batch_size 1 \
-  --gradient_accumulation_steps 8 \
-  --bf16
+  --per_device_train_batch_size "$TRAIN_BATCH_SIZE" \
+  --gradient_accumulation_steps "$GRAD_ACCUM_STEPS" \
+  --eval_steps "$EVAL_STEPS" \
+  --save_steps "$SAVE_STEPS" \
+  --bf16 \
+  --resume_from_checkpoint auto
 
 python evaluate_user_state.py \
   --base_model "$MODEL_PATH" \

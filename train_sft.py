@@ -1,6 +1,7 @@
 import argparse
 import inspect
 from dataclasses import fields, is_dataclass
+from pathlib import Path
 from typing import Any, Dict
 
 import torch
@@ -45,6 +46,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--bf16", action="store_true")
     parser.add_argument("--fp16", action="store_true")
     parser.add_argument("--gradient_checkpointing", action="store_true")
+    parser.add_argument(
+        "--resume_from_checkpoint",
+        type=str,
+        default=None,
+        help="Use 'auto' to resume from the latest checkpoint in output_dir, or pass a checkpoint path.",
+    )
     return parser.parse_args()
 
 
@@ -137,6 +144,41 @@ def build_trainer(
     return SFTTrainer(**{key: value for key, value in kwargs.items() if key in signature and value is not None})
 
 
+def find_latest_checkpoint(output_dir: str) -> str | None:
+    path = Path(output_dir)
+    if not path.exists():
+        return None
+
+    checkpoints = []
+    for child in path.glob("checkpoint-*"):
+        if not child.is_dir():
+            continue
+        try:
+            step = int(child.name.rsplit("-", 1)[1])
+        except ValueError:
+            continue
+        checkpoints.append((step, child))
+
+    if not checkpoints:
+        return None
+
+    return str(max(checkpoints, key=lambda item: item[0])[1])
+
+
+def resolve_resume_checkpoint(args: argparse.Namespace) -> str | None:
+    if args.resume_from_checkpoint is None:
+        return None
+    if args.resume_from_checkpoint.lower() != "auto":
+        return args.resume_from_checkpoint
+
+    checkpoint = find_latest_checkpoint(args.output_dir)
+    if checkpoint:
+        print(f"Resuming from checkpoint: {checkpoint}")
+    else:
+        print(f"No checkpoint found in {args.output_dir}; starting from scratch.")
+    return checkpoint
+
+
 def main() -> None:
     args = parse_args()
 
@@ -167,7 +209,7 @@ def main() -> None:
         peft_config=build_peft_config(args),
     )
 
-    trainer.train()
+    trainer.train(resume_from_checkpoint=resolve_resume_checkpoint(args))
     trainer.save_model(args.output_dir)
     tokenizer.save_pretrained(args.output_dir)
 
