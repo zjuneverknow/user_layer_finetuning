@@ -12,10 +12,18 @@ DEFAULT_FILES = {
     "dora_rslora_r16": "results/dora_rslora_r16_eval.json",
 }
 
+QWEN35_08B_FILES = {
+    "qwen35_08b_lora_r16": "results/qwen35_08b_lora_r16_eval.json",
+    "qwen35_08b_rslora_r16": "results/qwen35_08b_rslora_r16_eval.json",
+    "qwen35_08b_dora_r16": "results/qwen35_08b_dora_r16_eval.json",
+    "qwen35_08b_dora_rslora_r16": "results/qwen35_08b_dora_rslora_r16_eval.json",
+}
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output_file", type=str, default="results/metrics.csv")
+    parser.add_argument("--preset", type=str, default="default", choices=["default", "qwen35_08b"])
     parser.add_argument("--allow_missing", action="store_true")
     return parser.parse_args()
 
@@ -41,7 +49,8 @@ def load_metrics(files: Dict[str, str], allow_missing: bool) -> list[dict]:
 
 def main() -> None:
     args = parse_args()
-    rows = load_metrics(DEFAULT_FILES, args.allow_missing)
+    files = QWEN35_08B_FILES if args.preset == "qwen35_08b" else DEFAULT_FILES
+    rows = load_metrics(files, args.allow_missing)
     if not rows:
         raise ValueError("No metric files found.")
 
